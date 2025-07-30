@@ -1,5 +1,6 @@
 import { simpleParser, ParsedMail, AddressObject } from "mailparser";
 import { createImapClient, ImapAccountConfig } from "../config/imapConfig";
+import { saveEmailToElasticsearch } from "./elasticsearchService";
 
 function extractAddresses(input?: AddressObject | AddressObject[]): string[] {
   if (!input) return [];
@@ -206,14 +207,19 @@ async function processAndStoreEmail(
     // vector: embedding, // TODO: Implement embeddings
   };
 
+  // Save email to Elasticsearch
+  try {
+    await saveEmailToElasticsearch(doc);
+    console.log(`💾 Saved email to Elasticsearch: ${subject}`);
+  } catch (err) {
+    console.error(`❌ Failed to save email to Elasticsearch:`, err);
+  }
+
   // TODO: Implement Slack notifications and webhooks
   // if (category === 'Interested') {
   //   await sendSlackNotification(subject, fromAddrs[0] ?? '', accountUser);
   //   await triggerWebhook(doc);
   // }
-
-  // TODO: Implement Elasticsearch storage
-  // await saveEmailToElasticsearch(doc);
 
   console.log(
     `📧 Processed email: ${subject} from ${fromAddrs[0]} in ${mailbox}`

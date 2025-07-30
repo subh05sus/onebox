@@ -1,17 +1,18 @@
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import { ImapAccountConfig } from './config/imapConfig';
-import { syncEmails } from './services/imapService';
-import dotenv from 'dotenv';
-import router from './routes/index';
+import express, { Request, Response } from "express";
+import cors from "cors";
+import { ImapAccountConfig } from "./config/imapConfig";
+import { syncEmails } from "./services/imapService";
+import { ensureEmailIndex } from "./services/elasticsearchService";
+import dotenv from "dotenv";
+import router from "./routes/index";
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
-app.use('/api', router);
+app.use("/api", router);
 
 const IMAP_ACCOUNTS: ImapAccountConfig[] = [
   {
@@ -29,12 +30,16 @@ const IMAP_ACCOUNTS: ImapAccountConfig[] = [
 ];
 
 app.listen(3000, async () => {
-  console.log('🚀 Server running on port 3000');
+  console.log("🚀 Server running on port 3000");
+
+  // Ensure Elasticsearch index exists
+  await ensureEmailIndex();
+
   try {
-    console.log('🔁 Starting initial email sync...');
+    console.log("🔁 Starting initial email sync...");
     await syncEmails(IMAP_ACCOUNTS);
-    console.log('✅ Initial email sync completed.');
+    console.log("✅ Initial email sync completed.");
   } catch (err) {
-    console.error('❌ Error during initial sync:', err);
+    console.error("❌ Error during initial sync:", err);
   }
-}); 
+});
