@@ -101,6 +101,7 @@ router.get("/emails", async (req: Request, res: Response) => {
       category,
       page = 1,
       size = 100,
+      sort = "date_desc",
     } = req.query;
 
     console.log("🔍 Search params:", {
@@ -110,6 +111,7 @@ router.get("/emails", async (req: Request, res: Response) => {
       category,
       page,
       size,
+      sort,
     });
 
     const { hits, total } = await searchEmails({
@@ -119,6 +121,7 @@ router.get("/emails", async (req: Request, res: Response) => {
       category: category as string,
       page: Number(page),
       size: Number(size),
+      sort: sort as "date" | "date_asc" | "date_desc",
     });
 
     console.log(
@@ -135,12 +138,13 @@ router.get("/emails", async (req: Request, res: Response) => {
 
 router.get("/search", async (req: Request, res: Response) => {
   try {
-    const { query, folder, account } = req.query;
-    console.log("Search query:", { query, folder, account });
+    const { query, folder, account, sort = "date_desc" } = req.query;
+    console.log("Search query:", { query, folder, account, sort });
     const { hits, total } = await searchEmails({
       query: query as string,
       folder: folder as string,
       account: account as string,
+      sort: sort as "date" | "date_asc" | "date_desc",
     });
     console.log("Search results:", hits);
     res.json({ hits, total });
