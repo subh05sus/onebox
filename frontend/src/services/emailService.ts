@@ -17,6 +17,7 @@ export interface SearchParams {
   page?: number;
   size?: number;
   category?: string;
+  sort?: "date" | "date_asc" | "date_desc";
 }
 
 export interface SearchResponse {
@@ -36,7 +37,9 @@ export async function fetchEmails(
   if (params.folder) searchParams.append("folder", params.folder);
   if (params.account) searchParams.append("account", params.account);
   if (params.category) searchParams.append("category", params.category);
+  if (params.page) searchParams.append("page", params.page.toString());
   if (params.size) searchParams.append("size", params.size.toString());
+  if (params.sort) searchParams.append("sort", params.sort);
 
   const response = await fetch(`${API_BASE_URL}/emails?${searchParams}`);
 

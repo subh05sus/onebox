@@ -11,7 +11,13 @@ import EmailPreview from "@/components/EmailPreview";
 import SearchBar from "@/components/SearchBar";
 import FilterPanel from "@/components/FilterPanel";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Loader2, Mail } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Mail,
+  ArrowUpDown,
+} from "lucide-react";
 
 const PAGE_SIZE = 20;
 
@@ -28,6 +34,10 @@ function EmailDashboard() {
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+  const [sortOrder, setSortOrder] = useState<"date_desc" | "date_asc">(
+    "date_desc"
+  );
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
   // Available options
   const [accounts, setAccounts] = useState<
@@ -94,7 +104,8 @@ function EmailDashboard() {
           account: selectedAccount,
           category: selectedCategory || undefined,
           page,
-          size: PAGE_SIZE,
+          size: pageSize,
+          sort: sortOrder,
         });
 
         setEmails(hits);
@@ -116,7 +127,15 @@ function EmailDashboard() {
     };
 
     loadEmails();
-  }, [query, selectedFolder, selectedAccount, selectedCategory, page]);
+  }, [
+    query,
+    selectedFolder,
+    selectedAccount,
+    selectedCategory,
+    page,
+    sortOrder,
+    pageSize,
+  ]);
 
   const handleFilterChange = () => {
     setPage(1);
@@ -126,7 +145,7 @@ function EmailDashboard() {
     setSelectedEmail(email);
   };
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div className="h-screen flex flex-col">
@@ -145,6 +164,17 @@ function EmailDashboard() {
               debounceMs={500}
             />
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setSortOrder(sortOrder === "date_desc" ? "date_asc" : "date_desc")
+            }
+            className="flex items-center gap-2"
+          >
+            <ArrowUpDown className="h-4 w-4" />
+            {sortOrder === "date_desc" ? "Newest First" : "Oldest First"}
+          </Button>
         </div>
 
         {/* Compact Filter Panel */}
@@ -198,8 +228,8 @@ function EmailDashboard() {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-between items-center mt-4 pt-4 border-t">
+          <div className="flex justify-between items-center mt-4 pt-4 border-t">
+            <div className="flex items-center gap-4">
               <Button
                 variant="outline"
                 onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -224,7 +254,24 @@ function EmailDashboard() {
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-          )}
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Show:</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1); // Reset to first page when changing page size
+                }}
+                className="text-sm border rounded px-2 py-1"
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Right Panel - Email Preview */}
