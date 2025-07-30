@@ -119,6 +119,7 @@ export default function EmailPreview({ email }: EmailPreviewProps) {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">AI Reply Assistant</h3>
           <ReplySuggestion
+            key={email.uid}
             emailText={`${email.subject}\n\n${email.text}`}
             onReplyGenerated={(reply) => {
               console.log("Generated reply:", reply);
