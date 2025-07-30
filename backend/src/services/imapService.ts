@@ -199,16 +199,19 @@ async function processAndStoreEmail(
   const textBody = parsed.text ?? htmlBody;
 
   let embedding: number[] = [];
-  let category = '';
-  
+  let category = "";
+
   try {
     const emailContent = `${subject}\n\n${textBody}`;
     embedding = await getEmbedding(emailContent);
     category = await classifyEmailHybrid(subject, textBody);
     console.log(`🧠 [${accountUser} | ${mailbox}] Classified as: ${category}`);
   } catch (err) {
-    console.error(`⚠️ [${accountUser} | ${mailbox}] Classification error:`, err);
-    category = 'Not Interested'; // Default fallback
+    console.error(
+      `⚠️ [${accountUser} | ${mailbox}] Classification error:`,
+      err
+    );
+    category = "Not Interested"; // Default fallback
   }
 
   const doc = {

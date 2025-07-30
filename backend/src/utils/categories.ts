@@ -1,4 +1,4 @@
-import { getEmbedding } from './embedding';
+import { getEmbedding } from "./embedding";
 
 export const CATEGORY_TEXTS = {
   Interested: "The sender is interested in the proposal or offer.",
@@ -23,4 +23,4 @@ export const getCategoryEmbeddings = async (): Promise<CategoryEmbeddings> => {
 
   cachedCategoryEmbeddings = result as CategoryEmbeddings;
   return cachedCategoryEmbeddings;
-}; 
+};

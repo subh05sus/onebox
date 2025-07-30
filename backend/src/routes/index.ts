@@ -197,19 +197,19 @@ router.get("/debug/emails", async (req: Request, res: Response) => {
 });
 
 // Manual email classification endpoint
-router.post('/classify-email', async (req: Request, res: Response) => {
+router.post("/classify-email", async (req: Request, res: Response) => {
   const { subject, body } = req.body;
-  
+
   if (!subject || !body) {
-    return res.status(400).json({ error: 'Subject and body are required' });
+    return res.status(400).json({ error: "Subject and body are required" });
   }
-  
+
   try {
     const category = await classifyEmailHybrid(subject, body);
     res.json({ category });
   } catch (err) {
-    console.error('Classification Error:', err);
-    res.status(500).json({ error: 'Classification failed' });
+    console.error("Classification Error:", err);
+    res.status(500).json({ error: "Classification failed" });
   }
 });
 

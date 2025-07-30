@@ -13,7 +13,7 @@
    - Configure notification templates
 
 3. **AI Embeddings** ✅ COMPLETED
-   - ✅ Implement embedding generation using AI models (Xenova transformers)
+   - ✅ Implement embedding generation 
    - ✅ Add vector search capabilities
    - ✅ Integrate with embedding services
    - ✅ Cosine similarity for vector classification

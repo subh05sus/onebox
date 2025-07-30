@@ -37,7 +37,7 @@ function App() {
   const [category, setCategory] = useState(""); // Empty string represents "All Categories"
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
-  const [categories, setCategories] = useState<Category[]>([
+  const [categories, ] = useState<Category[]>([
     { value: "", label: "All Categories" },
     { value: "Interested", label: "Interested" },
     { value: "Meeting Booked", label: "Meeting Booked" },
@@ -259,8 +259,7 @@ function App() {
                         {email.subject}
                       </h4>
                       <span className="text-sm text-gray-500">
-                        {new Date(email.date).toLocaleDateString()}
-                        {" "}
+                        {new Date(email.date).toLocaleDateString()}{" "}
                         {new Date(email.date).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -279,14 +278,21 @@ function App() {
                       {email.category && (
                         <>
                           | <span className="font-medium ml-2">Category:</span>{" "}
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            email.category === 'Interested' ? 'bg-green-100 text-green-800' :
-                            email.category === 'Meeting Booked' ? 'bg-blue-100 text-blue-800' :
-                            email.category === 'Not Interested' ? 'bg-red-100 text-red-800' :
-                            email.category === 'Spam' ? 'bg-yellow-100 text-yellow-800' :
-                            email.category === 'Out of Office' ? 'bg-gray-100 text-gray-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
+                          <span
+                            className={`px-2 py-1 rounded text-xs ${
+                              email.category === "Interested"
+                                ? "bg-green-100 text-green-800"
+                                : email.category === "Meeting Booked"
+                                ? "bg-blue-100 text-blue-800"
+                                : email.category === "Not Interested"
+                                ? "bg-red-100 text-red-800"
+                                : email.category === "Spam"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : email.category === "Out of Office"
+                                ? "bg-gray-100 text-gray-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
                             {email.category}
                           </span>
                         </>
