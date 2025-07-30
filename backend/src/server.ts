@@ -11,9 +11,36 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:5173" }));
+// Configure CORS for production
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://onebox-frontend.onrender.com", // Update this with your frontend URL
+  "https://your-frontend-domain.com", // Add your actual frontend domain
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use("/api", router);
+
+// Health check endpoint
+app.get("/health", (req: Request, res: Response) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
 
 const IMAP_ACCOUNTS: ImapAccountConfig[] = [
   {
@@ -30,8 +57,10 @@ const IMAP_ACCOUNTS: ImapAccountConfig[] = [
   },
 ];
 
-app.listen(3000, async () => {
-  console.log("🚀 Server running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, async () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 
   // Ensure Elasticsearch index exists
   await ensureEmailIndex();

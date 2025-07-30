@@ -2,17 +2,15 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/server.ts",
+    "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
     "build": "tsc",
+    "postinstall": "npm run build",
     "index-replies": "ts-node src/scripts/indexReplyKnowledge.ts",
-    "seed-rag": "ts-node src/scripts/seedContext.ts",
-    "test-rag": "node test-rag.js",
-    "test-rag-simple": "node test-rag-simple.js",
-    "test-api": "node test-api-simple.js"
+    "seed-rag": "ts-node src/scripts/seedContext.ts"
   },
   "keywords": [],
   "author": "",
@@ -40,5 +38,8 @@
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
