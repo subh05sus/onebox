@@ -62,4 +62,20 @@ export async function fetchFolders(): Promise<{ folders: Array<{ value: string; 
   }
   
   return response.json();
+}
+
+export async function suggestReply(emailText: string): Promise<{ reply: string }> {
+  const response = await fetch(`${API_BASE_URL}/suggest-reply`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ emailText }),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
 } 

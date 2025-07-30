@@ -7,7 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node src/server.ts",
     "dev": "nodemon src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "index-replies": "ts-node src/scripts/indexReplyKnowledge.ts",
+    "seed-rag": "ts-node src/scripts/seedContext.ts",
+    "test-rag": "node test-rag.js",
+    "test-rag-simple": "node test-rag-simple.js",
+    "test-api": "node test-api-simple.js"
   },
   "keywords": [],
   "author": "",

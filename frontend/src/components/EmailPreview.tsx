@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Calendar, Folder, Mail, Users } from "lucide-react";
 import type { Email } from "@/services/emailService";
+import ReplySuggestion from "./ReplySuggestion";
 
 const categoryColors: Record<string, string> = {
   Interested: "bg-green-100 text-green-800 border-green-200",
@@ -112,6 +113,17 @@ export default function EmailPreview({ email }: EmailPreviewProps) {
               {email.text}
             </div>
           </div>
+        </div>
+
+        {/* AI Reply Suggestion */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">AI Reply Assistant</h3>
+          <ReplySuggestion
+            emailText={`${email.subject}\n\n${email.text}`}
+            onReplyGenerated={(reply) => {
+              console.log("Generated reply:", reply);
+            }}
+          />
         </div>
       </CardContent>
     </Card>

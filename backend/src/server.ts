@@ -3,6 +3,7 @@ import cors from "cors";
 import { ImapAccountConfig } from "./config/imapConfig";
 import { syncEmails } from "./services/imapService";
 import { ensureEmailIndex } from "./services/elasticsearchService";
+import { initRAG } from "./services/ragService";
 import dotenv from "dotenv";
 import router from "./routes/index";
 
@@ -34,6 +35,9 @@ app.listen(3000, async () => {
 
   // Ensure Elasticsearch index exists
   await ensureEmailIndex();
+
+  // Initialize RAG system
+  await initRAG();
 
   try {
     console.log("🔁 Starting initial email sync...");
