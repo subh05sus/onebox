@@ -1,69 +1,109 @@
-# React + TypeScript + Vite
+# Email Dashboard Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React TypeScript application built with Vite and shadcn/ui components for email management and search.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Modern UI**: Built with shadcn/ui components for a consistent and beautiful design
+- **Email Search**: Full-text search across email subjects, content, and metadata
+- **Advanced Filtering**: Filter by folder, account, and category
+- **Email View**: Detailed view of individual emails with metadata
+- **Responsive Design**: Works on desktop and mobile devices
+- **Real-time Updates**: Automatic loading and error handling
 
-## Expanding the ESLint configuration
+## Components
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Core Components
+- `EmailDashboard`: Main dashboard page with search and filtering
+- `EmailCard`: Individual email card with preview
+- `EmailView`: Detailed email view with full content
+- `SearchBar`: Search input with real-time filtering
+- `FilterPanel`: Advanced filtering controls
+- `EmailList`: Alternative list view for emails
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### UI Components (shadcn/ui)
+- `Button`: Interactive buttons with variants
+- `Card`: Content containers with headers and sections
+- `Input`: Form input fields
+- `Select`: Dropdown selection components
+- `Badge`: Status and category indicators
+- `Separator`: Visual dividers
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/
+│   ├── ui/           # shadcn/ui components
+│   ├── EmailCard.tsx
+│   ├── EmailList.tsx
+│   ├── EmailView.tsx
+│   ├── FilterPanel.tsx
+│   └── SearchBar.tsx
+├── pages/
+│   └── EmailDashboard.tsx
+├── services/
+│   └── emailService.ts
+└── App.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+3. Build for production:
+   ```bash
+   npm run build
+   ```
+
+## API Integration
+
+The frontend connects to the backend API at `http://localhost:3000/api`:
+
+- `GET /api/emails` - Search and filter emails
+- `GET /api/accounts` - Get available email accounts
+- `GET /api/folders` - Get available email folders
+
+## Styling
+
+The application uses:
+- **Tailwind CSS**: Utility-first CSS framework
+- **shadcn/ui**: Modern component library
+- **Lucide React**: Beautiful icons
+- **Custom CSS**: Additional utilities and animations
+
+## Development
+
+The project uses:
+- **TypeScript**: Type-safe development
+- **Vite**: Fast build tool and dev server
+- **ESLint**: Code linting and formatting
+- **React 19**: Latest React features
+
+## Features
+
+### Search and Filter
+- Real-time search across email content
+- Filter by email folder
+- Filter by email account
+- Filter by email category (Interested, Spam, etc.)
+
+### Email Display
+- Card-based email preview
+- Category badges with color coding
+- Metadata display (sender, date, folder, account)
+- Full email view with complete content
+
+### User Experience
+- Loading states and error handling
+- Responsive design for all screen sizes
+- Smooth transitions and hover effects
+- Pagination for large result sets
