@@ -283,23 +283,26 @@ router.get("/debug/env", async (req: Request, res: Response) => {
 });
 
 // RAG Reply Suggestions endpoint
-router.post("/suggest-reply", async (req: Request, res: Response): Promise<void> => {
-  const { emailText } = req.body;
+router.post(
+  "/suggest-reply",
+  async (req: Request, res: Response): Promise<void> => {
+    const { emailText } = req.body;
 
-  if (!emailText) {
-    res.status(400).json({ error: 'emailText is required' });
-    return;
+    if (!emailText) {
+      res.status(400).json({ error: "emailText is required" });
+      return;
+    }
+
+    console.log("📧 Email text:", emailText);
+
+    try {
+      const reply = await suggestReply(emailText);
+      res.json({ reply });
+    } catch (err) {
+      console.error("❌ Error suggesting reply:", err);
+      res.status(500).json({ error: "Failed to generate reply" });
+    }
   }
-  
-  console.log('📧 Email text:', emailText);
-  
-  try {
-    const reply = await suggestReply(emailText);
-    res.json({ reply });
-  } catch (err) {
-    console.error('❌ Error suggesting reply:', err);
-    res.status(500).json({ error: 'Failed to generate reply' });
-  }
-});
+);
 
 export default router;

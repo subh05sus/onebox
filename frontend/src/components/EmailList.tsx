@@ -67,56 +67,62 @@ export default function EmailList({
     <Card className="h-full flex flex-col">
       <CardContent className="flex-1 overflow-y-auto p-0">
         <div className="space-y-0">
-          {emails.map((email, index) => {
-            const categoryColor =
-              categoryColors[email.category] ||
-              "bg-gray-100 text-gray-800 border-gray-200";
-            const formattedDate = new Date(email.date).toLocaleDateString();
-            const isSelected = selectedEmail?.uid === email.uid;
+          {emails
+            .sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            )
+            .map((email, index) => {
+              const categoryColor =
+                categoryColors[email.category] ||
+                "bg-gray-100 text-gray-800 border-gray-200";
+              // const formattedDate = new Date(email.date).toLocaleDateString(); add time too
+              const formattedDate = new Date(email.date).toLocaleString();
 
-            return (
-              <div key={email.uid}>
-                <div
-                  className={`p-3 lg:p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
-                    isSelected ? "bg-muted border-l-2 border-primary" : ""
-                  }`}
-                  onClick={() => onEmailClick(email)}
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3
-                        className={`font-medium text-sm line-clamp-2 flex-1 ${
-                          isSelected ? "text-primary" : ""
-                        }`}
-                      >
-                        {email.subject}
-                      </h3>
-                      <Badge className={`${categoryColor} border text-xs`}>
-                        {email.category}
-                      </Badge>
-                    </div>
+              const isSelected = selectedEmail?.uid === email.uid;
 
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {email.text.slice(0, 100)}...
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        <span className="truncate">{email.from}</span>
+              return (
+                <div key={email.uid}>
+                  <div
+                    className={`p-3 lg:p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
+                      isSelected ? "bg-muted border-l-2 border-primary" : ""
+                    }`}
+                    onClick={() => onEmailClick(email)}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3
+                          className={`font-medium text-sm line-clamp-2 flex-1 ${
+                            isSelected ? "text-primary" : ""
+                          }`}
+                        >
+                          {email.subject}
+                        </h3>
+                        <Badge className={`${categoryColor} border text-xs`}>
+                          {email.category}
+                        </Badge>
                       </div>
 
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        <span>{formattedDate}</span>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {email.text.slice(0, 100)}...
+                      </p>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          <span className="truncate">{email.from}</span>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          <span>{formattedDate}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
+                  {index < emails.length - 1 && <Separator />}
                 </div>
-                {index < emails.length - 1 && <Separator />}
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </CardContent>
     </Card>
