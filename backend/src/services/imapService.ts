@@ -1,6 +1,9 @@
 import { simpleParser, ParsedMail, AddressObject } from "mailparser";
 import { createImapClient, ImapAccountConfig } from "../config/imapConfig";
-import { saveEmailToElasticsearch } from "./elasticsearchService";
+import {
+  saveEmailToElasticsearch,
+  ensureEmailIndex,
+} from "./elasticsearchService";
 import { classifyEmailHybrid } from "./classifierService";
 import { getEmbedding } from "../utils/embedding";
 import { notificationService } from "./notificationService";
@@ -231,6 +234,8 @@ async function processAndStoreEmail(
 
   // Save email to Elasticsearch
   try {
+    // Ensure index exists with correct mapping
+    await ensureEmailIndex();
     await saveEmailToElasticsearch(doc);
     console.log(
       `💾 Saved email to Elasticsearch: ${subject} (Account: ${accountUser})`

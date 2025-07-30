@@ -51,6 +51,29 @@ npm run build
 npm start
 ```
 
+## Troubleshooting
+
+### Elasticsearch Index Mapping Issues
+
+If you encounter the error `mapper [vector] cannot be changed from type [float] to [long]`, this means the Elasticsearch index was created with an incorrect mapping. To fix this:
+
+```bash
+npm run fix-index
+```
+
+This will delete and recreate the index with the correct mapping for the `vector` field as a `dense_vector` type.
+
+## Scripts
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run index-replies` - Index reply knowledge base
+- `npm run seed-rag` - Seed RAG context
+- `npm run fix-index` - Fix Elasticsearch index mapping issues
+
 ## API Endpoints
 
 ### POST /api/sync
