@@ -23,56 +23,71 @@ function shouldSkipFolder(folder: string): boolean {
 export async function syncEmails(accounts: ImapAccountConfig[]) {
   const sinceDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
+  console.log(`🔄 Starting sync for ${accounts.length} accounts...`);
+
   for (const account of accounts) {
-    const client = await createImapClient(account);
-    const boxes = await client.list();
+    console.log(
+      `📧 Processing account: ${account.user} (${account.host}:${account.port})`
+    );
 
-    console.log(`📦 All folders for ${account.user}:`);
-    boxes.forEach((box) => console.log(`   • ${box.path}`));
+    try {
+      const client = await createImapClient(account);
+      console.log(`✅ Connected to ${account.user}`);
 
-    // Store mailbox states for IDLE mode
-    const mailboxStates = new Map<string, number>();
+      const boxes = await client.list();
 
-    for (const box of boxes) {
-      const mailbox = box.path;
+      console.log(`📦 All folders for ${account.user}:`);
+      boxes.forEach((box) => console.log(`   • ${box.path}`));
 
-      if (box.flags?.has("\\Noselect") || shouldSkipFolder(mailbox)) {
-        console.log(`⚠️ Skipping folder: ${mailbox}`);
-        continue;
-      }
+      // Store mailbox states for IDLE mode
+      const mailboxStates = new Map<string, number>();
 
-      console.log(`📁 Syncing mailbox: ${mailbox} for ${account.user}`);
+      for (const box of boxes) {
+        const mailbox = box.path;
 
-      try {
-        await client.mailboxOpen(mailbox);
-      } catch (err) {
-        console.error(`❌ Error opening ${mailbox} for ${account.user}:`, err);
-        continue;
-      }
-
-      const uids = await client.search({ since: sinceDate });
-      let highestUid = 0;
-
-      if (uids && Array.isArray(uids)) {
-        for await (const msg of client.fetch(uids, {
-          envelope: true,
-          source: true,
-        })) {
-          await processAndStoreEmail(msg, account.user, mailbox);
-          highestUid = Math.max(highestUid, msg.uid!);
+        if (box.flags?.has("\\Noselect") || shouldSkipFolder(mailbox)) {
+          console.log(`⚠️ Skipping folder: ${mailbox}`);
+          continue;
         }
 
-        console.log(
-          `✅ Synced ${uids.length} emails from ${mailbox} for ${account.user}`
-        );
+        console.log(`📁 Syncing mailbox: ${mailbox} for ${account.user}`);
+
+        try {
+          await client.mailboxOpen(mailbox);
+        } catch (err) {
+          console.error(
+            `❌ Error opening ${mailbox} for ${account.user}:`,
+            err
+          );
+          continue;
+        }
+
+        const uids = await client.search({ since: sinceDate });
+        let highestUid = 0;
+
+        if (uids && Array.isArray(uids)) {
+          for await (const msg of client.fetch(uids, {
+            envelope: true,
+            source: true,
+          })) {
+            await processAndStoreEmail(msg, account.user, mailbox);
+            highestUid = Math.max(highestUid, msg.uid!);
+          }
+
+          console.log(
+            `✅ Synced ${uids.length} emails from ${mailbox} for ${account.user}`
+          );
+        }
+
+        // Store the highest UID for this mailbox
+        mailboxStates.set(mailbox, highestUid);
       }
 
-      // Store the highest UID for this mailbox
-      mailboxStates.set(mailbox, highestUid);
+      // Start IDLE mode for real-time updates
+      await startIdleMode(client, account.user, mailboxStates);
+    } catch (err) {
+      console.error(`❌ Error processing account ${account.user}:`, err);
     }
-
-    // Start IDLE mode for real-time updates
-    await startIdleMode(client, account.user, mailboxStates);
   }
 }
 
@@ -210,7 +225,9 @@ async function processAndStoreEmail(
   // Save email to Elasticsearch
   try {
     await saveEmailToElasticsearch(doc);
-    console.log(`💾 Saved email to Elasticsearch: ${subject}`);
+    console.log(
+      `💾 Saved email to Elasticsearch: ${subject} (Account: ${accountUser})`
+    );
   } catch (err) {
     console.error(`❌ Failed to save email to Elasticsearch:`, err);
   }

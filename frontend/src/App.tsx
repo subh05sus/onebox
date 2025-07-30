@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Email {
   subject: string;
@@ -14,16 +14,56 @@ interface SearchResponse {
   total: { value: number };
 }
 
+interface Account {
+  value: string;
+  label: string;
+}
+
+interface Folder {
+  value: string;
+  label: string;
+}
+
 function App() {
   const [query, setQuery] = useState("");
   const [folder, setFolder] = useState("");
-  const [account, setAccount] = useState("");
+  const [account, setAccount] = useState(""); // Empty string represents "All Accounts"
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
   const [results, setResults] = useState<Email[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Fetch available accounts and folders on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch accounts
+        const accountsResponse = await fetch(
+          "http://localhost:3000/api/accounts"
+        );
+        const accountsData = await accountsResponse.json();
+        setAccounts(accountsData.accounts);
+
+        // Fetch folders
+        const foldersResponse = await fetch(
+          "http://localhost:3000/api/folders"
+        );
+        const foldersData = await foldersResponse.json();
+        setFolders(foldersData.folders);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        setError("Failed to load data");
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleSearch = async () => {
     setLoading(true);
+    setError("");
     try {
       const params = new URLSearchParams();
       if (query) params.append("query", query);
@@ -31,15 +71,27 @@ function App() {
       if (account) params.append("account", account);
       params.append("size", "20");
 
+      console.log("🔍 Search params:", {
+        query,
+        folder: folder || "All Folders",
+        account: account || "All Accounts",
+      });
+
       const response = await fetch(
         `http://localhost:3000/api/emails?${params}`
       );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data: SearchResponse = await response.json();
 
       setResults(data.hits);
       setTotal(data.total.value);
     } catch (error) {
       console.error("Search failed:", error);
+      setError("Search failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -72,41 +124,86 @@ function App() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Folder
               </label>
-              <input
-                type="text"
+              <select
                 value={folder}
                 onChange={(e) => setFolder(e.target.value)}
-                placeholder="e.g., INBOX, Sent"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              >
+                {folders.map((fld) => (
+                  <option key={fld.value} value={fld.value}>
+                    {fld.label}
+                  </option>
+                ))}
+              </select>
+              {folder && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Filtering by: {folder}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Account
               </label>
-              <input
-                type="text"
+              <select
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
-                placeholder="email@domain.com"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              >
+                {accounts.map((acc) => (
+                  <option key={acc.value} value={acc.value}>
+                    {acc.label}
+                  </option>
+                ))}
+              </select>
+              {account && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Filtering by: {account}
+                </p>
+              )}
             </div>
           </div>
-          <button
-            onClick={handleSearch}
-            disabled={loading}
-            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? "Searching..." : "Search"}
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={handleSearch}
+              disabled={loading}
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Searching..." : "Search"}
+            </button>
+          </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
+            <p className="text-red-800">{error}</p>
+          </div>
+        )}
 
         {/* Results */}
         {results.length > 0 && (
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold mb-4">
               Results ({total} total emails)
+              {account ? (
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  from {account}
+                </span>
+              ) : (
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  from All Accounts
+                </span>
+              )}
+              {folder ? (
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  in {folder}
+                </span>
+              ) : (
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  in All Folders
+                </span>
+              )}
             </h3>
             <div className="space-y-4">
               {results.map((email, index) => (
@@ -139,7 +236,7 @@ function App() {
           </div>
         )}
 
-        {results.length === 0 && !loading && (
+        {results.length === 0 && !loading && !error && (
           <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">
             No emails found. Try adjusting your search criteria.
           </div>

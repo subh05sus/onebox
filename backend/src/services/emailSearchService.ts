@@ -28,23 +28,33 @@ export async function searchEmails({
     });
   }
 
-  if (folder) {
+  if (folder && folder.trim() !== "") {
     must.push({ match: { folder } });
+    console.log(`🔍 Filtering by folder: ${folder}`);
+  } else {
+    console.log(`🔍 Showing emails from all folders`);
   }
 
-  if (account) {
+  if (account && account.trim() !== "") {
     must.push({ match: { account } });
+    console.log(`🔍 Filtering by account: ${account}`);
+  } else {
+    console.log(`🔍 Showing emails from all accounts`);
   }
 
   if (category) {
     must.push({ match: { category } });
   }
 
+  const searchQuery = must.length > 0 ? { bool: { must } } : { match_all: {} };
+
+  console.log(`🔍 Elasticsearch query:`, JSON.stringify(searchQuery, null, 2));
+
   const result = await elasticClient.search({
     index: "emails",
     from: (page - 1) * size,
     size,
-    query: must.length > 0 ? { bool: { must } } : { match_all: {} },
+    query: searchQuery,
   });
 
   return {
