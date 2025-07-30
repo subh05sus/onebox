@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import {
   fetchEmails,
@@ -115,14 +116,7 @@ function EmailDashboard() {
     };
 
     loadEmails();
-  }, [
-    query,
-    selectedFolder,
-    selectedAccount,
-    selectedCategory,
-    page,
-    selectedEmail,
-  ]);
+  }, [query, selectedFolder, selectedAccount, selectedCategory, page]);
 
   const handleFilterChange = () => {
     setPage(1);
