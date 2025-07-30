@@ -4,6 +4,7 @@ import { searchEmails } from "../services/emailSearchService";
 import { ImapAccountConfig } from "../config/imapConfig";
 import { elasticClient } from "../config/elasticClient";
 import { classifyEmailHybrid } from "../services/classifierService";
+import { notificationService } from "../services/notificationService";
 
 const router = express.Router();
 
@@ -211,6 +212,73 @@ router.post("/classify-email", async (req: Request, res: Response) => {
     console.error("Classification Error:", err);
     res.status(500).json({ error: "Classification failed" });
   }
+});
+
+// Notification endpoints
+router.post("/notify-slack", async (req: Request, res: Response) => {
+  const { message } = req.body;
+
+  if (!message) {
+    return res.status(400).json({ error: "Message is required" });
+  }
+
+  try {
+    await notificationService.sendSlackNotification(message);
+    res.json({ success: true, message: "Slack notification sent" });
+  } catch (err) {
+    console.error("Slack notification error:", err);
+    res.status(500).json({ error: "Failed to send Slack notification" });
+  }
+});
+
+router.post("/trigger-webhook", async (req: Request, res: Response) => {
+  const { url, data } = req.body;
+
+  if (!url || !data) {
+    return res.status(400).json({ error: "URL and data are required" });
+  }
+
+  try {
+    await notificationService.triggerWebhook(url, data);
+    res.json({ success: true, message: "Webhook triggered" });
+  } catch (err) {
+    console.error("Webhook trigger error:", err);
+    res.status(500).json({ error: "Failed to trigger webhook" });
+  }
+});
+
+// Test connection endpoints
+router.post("/test-slack", async (req: Request, res: Response) => {
+  try {
+    await notificationService.testSlackConnection();
+    res.json({ success: true, message: "Slack connection test successful" });
+  } catch (err) {
+    console.error("Slack connection test error:", err);
+    res.status(500).json({ error: "Slack connection test failed" });
+  }
+});
+
+router.post("/test-webhook", async (req: Request, res: Response) => {
+  try {
+    await notificationService.testWebhookConnection();
+    res.json({ success: true, message: "Webhook connection test successful" });
+  } catch (err) {
+    console.error("Webhook connection test error:", err);
+    res.status(500).json({ error: "Webhook connection test failed" });
+  }
+});
+
+// Debug endpoint to check environment variables
+router.get("/debug/env", async (req: Request, res: Response) => {
+  const envVars = {
+    SLACK_WEBHOOK_URL: process.env.SLACK_WEBHOOK_URL
+      ? "Configured"
+      : "Not configured",
+    WEBHOOK_URL: process.env.WEBHOOK_URL ? "Configured" : "Not configured",
+    WEBHOOK_TIMEOUT: process.env.WEBHOOK_TIMEOUT || "5000 (default)",
+  };
+
+  res.json({ environment: envVars });
 });
 
 export default router;

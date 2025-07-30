@@ -3,6 +3,7 @@ import { createImapClient, ImapAccountConfig } from "../config/imapConfig";
 import { saveEmailToElasticsearch } from "./elasticsearchService";
 import { classifyEmailHybrid } from "./classifierService";
 import { getEmbedding } from "../utils/embedding";
+import { notificationService } from "./notificationService";
 
 function extractAddresses(input?: AddressObject | AddressObject[]): string[] {
   if (!input) return [];
@@ -238,11 +239,11 @@ async function processAndStoreEmail(
     console.error(`❌ Failed to save email to Elasticsearch:`, err);
   }
 
-  // TODO: Implement Slack notifications and webhooks
-  // if (category === 'Interested') {
-  //   await sendSlackNotification(subject, fromAddrs[0] ?? '', accountUser);
-  //   await triggerWebhook(doc);
-  // }
+  // Trigger notifications for interested emails
+  if (category === "Interested") {
+    console.log(`🎯 Interested email detected: ${subject}`);
+    await notificationService.notifyInterestedEmail(doc);
+  }
 
   console.log(
     `📧 Processed email: ${subject} from ${fromAddrs[0]} in ${mailbox}`
