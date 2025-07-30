@@ -8,7 +8,7 @@ const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 export async function classifyEmail(
   subject: string,
   body: string
-): Promise<string> {
+): Promise<string | undefined> {
   const prompt = `
 You are an email classifier. Classify the email into one of the following categories:
 - Interested
@@ -50,10 +50,10 @@ Email Body: ${body}
       console.warn(
         `Invalid classification response: ${text}, defaulting to 'Not Interested'`
       );
-      return "Not Interested";
+      // return "Not Interested";
     }
   } catch (error) {
     console.error("Gemini API error:", error);
-    return "Not Interested"; // Default fallback
+    // return "Not Interested"; // Default fallback
   }
 }
