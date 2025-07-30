@@ -1,12 +1,14 @@
 import { simpleParser, ParsedMail, AddressObject } from "mailparser";
 import { createImapClient, ImapAccountConfig } from "../config/imapConfig";
 import { saveEmailToElasticsearch } from "./elasticsearchService";
+import { classifyEmailHybrid } from "./classifierService";
+import { getEmbedding } from "../utils/embedding";
 
 function extractAddresses(input?: AddressObject | AddressObject[]): string[] {
   if (!input) return [];
   const groups = Array.isArray(input) ? input : [input];
   return groups.flatMap((group) =>
-    (group.value ?? []).map((addr) => addr.address || "")
+    (group.value ?? []).map((addr: any) => addr.address || "")
   );
 }
 
@@ -196,17 +198,18 @@ async function processAndStoreEmail(
   const subject = parsed.subject ?? msg.envelope.subject ?? "";
   const textBody = parsed.text ?? htmlBody;
 
-  // TODO: Implement AI embeddings and classification
-  // let embedding: number[] = [];
-  // let category = '';
-  // try {
-  //   const emailContent = `${subject}\n\n${textBody}`;
-  //   embedding = await getEmbedding(emailContent);
-  //   category = await classifyWithElasticsearch(embedding);
-  //   console.log(`🧠 [${accountUser} | ${mailbox}] RAG Classified as: ${category}`);
-  // } catch (err) {
-  //   console.error(`⚠️ [${accountUser} | ${mailbox}] Classification error:`, err);
-  // }
+  let embedding: number[] = [];
+  let category = '';
+  
+  try {
+    const emailContent = `${subject}\n\n${textBody}`;
+    embedding = await getEmbedding(emailContent);
+    category = await classifyEmailHybrid(subject, textBody);
+    console.log(`🧠 [${accountUser} | ${mailbox}] Classified as: ${category}`);
+  } catch (err) {
+    console.error(`⚠️ [${accountUser} | ${mailbox}] Classification error:`, err);
+    category = 'Not Interested'; // Default fallback
+  }
 
   const doc = {
     subject,
@@ -218,8 +221,8 @@ async function processAndStoreEmail(
     folder: mailbox,
     account: accountUser,
     uid: msg.uid!,
-    // category, // TODO: Implement classification
-    // vector: embedding, // TODO: Implement embeddings
+    category,
+    vector: embedding,
   };
 
   // Save email to Elasticsearch

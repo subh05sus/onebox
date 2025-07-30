@@ -9,7 +9,10 @@ const INDEX = "emails";
 export async function ensureEmailIndex() {
   const exists = await esClient.indices.exists({ index: INDEX });
   if (!exists) {
-    await esClient.indices.create({ index: INDEX, ...emailIndexMapping });
+    await esClient.indices.create({
+      index: INDEX,
+      mappings: emailIndexMapping.mappings as any,
+    });
     console.log(`Created Elasticsearch index: ${INDEX}`);
   }
 }
