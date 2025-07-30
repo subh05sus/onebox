@@ -24,58 +24,67 @@ export interface SearchResponse {
   total: { value: number };
 }
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
-export async function fetchEmails(params: SearchParams): Promise<SearchResponse> {
+export async function fetchEmails(
+  params: SearchParams
+): Promise<SearchResponse> {
   const searchParams = new URLSearchParams();
-  
-  if (params.query) searchParams.append('query', params.query);
-  if (params.folder) searchParams.append('folder', params.folder);
-  if (params.account) searchParams.append('account', params.account);
-  if (params.category) searchParams.append('category', params.category);
-  if (params.size) searchParams.append('size', params.size.toString());
-  
+
+  if (params.query) searchParams.append("query", params.query);
+  if (params.folder) searchParams.append("folder", params.folder);
+  if (params.account) searchParams.append("account", params.account);
+  if (params.category) searchParams.append("category", params.category);
+  if (params.size) searchParams.append("size", params.size.toString());
+
   const response = await fetch(`${API_BASE_URL}/emails?${searchParams}`);
-  
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  
+
   return response.json();
 }
 
-export async function fetchAccounts(): Promise<{ accounts: Array<{ value: string; label: string }> }> {
+export async function fetchAccounts(): Promise<{
+  accounts: Array<{ value: string; label: string }>;
+}> {
   const response = await fetch(`${API_BASE_URL}/accounts`);
-  
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  
+
   return response.json();
 }
 
-export async function fetchFolders(): Promise<{ folders: Array<{ value: string; label: string }> }> {
+export async function fetchFolders(): Promise<{
+  folders: Array<{ value: string; label: string }>;
+}> {
   const response = await fetch(`${API_BASE_URL}/folders`);
-  
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  
+
   return response.json();
 }
 
-export async function suggestReply(emailText: string): Promise<{ reply: string }> {
+export async function suggestReply(
+  emailText: string
+): Promise<{ reply: string }> {
   const response = await fetch(`${API_BASE_URL}/suggest-reply`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ emailText }),
   });
-  
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-  
+
   return response.json();
-} 
+}
