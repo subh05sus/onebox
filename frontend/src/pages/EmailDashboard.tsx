@@ -115,7 +115,14 @@ function EmailDashboard() {
     };
 
     loadEmails();
-  }, [query, selectedFolder, selectedAccount, selectedCategory, page]);
+  }, [
+    query,
+    selectedFolder,
+    selectedAccount,
+    selectedCategory,
+    page,
+    selectedEmail,
+  ]);
 
   const handleFilterChange = () => {
     setPage(1);
