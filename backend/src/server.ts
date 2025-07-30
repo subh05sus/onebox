@@ -15,8 +15,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "https://onebox-frontend.onrender.com", // Update this with your frontend URL
-  "https://your-frontend-domain.com", // Add your actual frontend domain
+  "https://onebox-mails.onrender.com", // Update this with your frontend URL
 ];
 
 app.use(

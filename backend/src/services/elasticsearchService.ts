@@ -2,8 +2,9 @@ import { Client } from "@elastic/elasticsearch";
 import { elasticClient } from "../config/elasticClient";
 import { emailIndexMapping } from "../config/emailIndexMapping";
 
-const ES_NODE = process.env.ELASTICSEARCH_NODE || "http://localhost:9200";
-const esClient = new Client({ node: ES_NODE });
+const esClient = new Client({
+  node: process.env.ELASTICSEARCH_URL || "http://localhost:9200",
+});
 const INDEX = "emails";
 
 export async function ensureEmailIndex() {
