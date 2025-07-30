@@ -5,7 +5,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Filter } from "lucide-react";
 import {
   filterValidSelectOptions,
@@ -36,82 +35,85 @@ export default function FilterPanel({
   onCategoryChange,
 }: FilterPanelProps) {
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Filter className="h-4 w-4" />
-          Filters
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Folder</label>
-            <Select
-              value={safeSelectValue(selectedFolder)}
-              onValueChange={(value: string) =>
-                onFolderChange(value === "all" ? null : value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Folders" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Folders</SelectItem>
-                {filterValidSelectOptions(folders).map((folder) => (
-                  <SelectItem key={folder.value} value={folder.value}>
-                    {folder.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Filter className="h-4 w-4" />
+        <span>Filters:</span>
+      </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Account</label>
-            <Select
-              value={safeSelectValue(selectedAccount)}
-              onValueChange={(value: string) =>
-                onAccountChange(value === "all" ? null : value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Accounts" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Accounts</SelectItem>
-                {filterValidSelectOptions(accounts).map((account) => (
-                  <SelectItem key={account.value} value={account.value}>
-                    {account.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Category</label>
-            <Select
-              value={safeSelectValue(selectedCategory)}
-              onValueChange={(value: string) =>
-                onCategoryChange(value === "all" ? null : value)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {filterValidSelectOptions(categories).map((category) => (
-                  <SelectItem key={category.value} value={category.value}>
-                    {category.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium whitespace-nowrap">
+            Folder
+          </label>
+          <Select
+            value={safeSelectValue(selectedFolder)}
+            onValueChange={(value: string) =>
+              onFolderChange(value === "all" ? null : value)
+            }
+          >
+            <SelectTrigger className="h-8 w-32 text-xs">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Folders</SelectItem>
+              {filterValidSelectOptions(folders).map((folder) => (
+                <SelectItem key={folder.value} value={folder.value}>
+                  {folder.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium whitespace-nowrap">
+            Account
+          </label>
+          <Select
+            value={safeSelectValue(selectedAccount)}
+            onValueChange={(value: string) =>
+              onAccountChange(value === "all" ? null : value)
+            }
+          >
+            <SelectTrigger className="h-8 w-32 text-xs">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Accounts</SelectItem>
+              {filterValidSelectOptions(accounts).map((account) => (
+                <SelectItem key={account.value} value={account.value}>
+                  {account.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium whitespace-nowrap">
+            Category
+          </label>
+          <Select
+            value={safeSelectValue(selectedCategory)}
+            onValueChange={(value: string) =>
+              onCategoryChange(value === "all" ? null : value)
+            }
+          >
+            <SelectTrigger className="h-8 w-32 text-xs">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              {/* <SelectItem value="all">All Categories</SelectItem> */}
+              {filterValidSelectOptions(categories).map((category) => (
+                <SelectItem key={category.value} value={category.value}>
+                  {category.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    </div>
   );
 }

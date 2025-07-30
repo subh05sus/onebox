@@ -5,12 +5,11 @@ import {
   fetchFolders,
 } from "@/services/emailService";
 import type { Email } from "@/services/emailService";
-import EmailCard from "@/components/EmailCard";
+import EmailList from "@/components/EmailList";
+import EmailPreview from "@/components/EmailPreview";
 import SearchBar from "@/components/SearchBar";
 import FilterPanel from "@/components/FilterPanel";
-import EmailView from "@/components/EmailView";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Loader2, Mail } from "lucide-react";
 
 const PAGE_SIZE = 20;
@@ -99,6 +98,14 @@ function EmailDashboard() {
 
         setEmails(hits);
         setTotal(total.value || 0);
+
+        // Clear selected email if it's no longer in the list
+        if (
+          selectedEmail &&
+          !hits.find((email) => email.uid === selectedEmail.uid)
+        ) {
+          setSelectedEmail(null);
+        }
       } catch (err) {
         setError("Failed to load emails");
         console.error("Failed to load emails:", err);
@@ -110,135 +117,126 @@ function EmailDashboard() {
     loadEmails();
   }, [query, selectedFolder, selectedAccount, selectedCategory, page]);
 
-  const handleSearch = () => {
-    setPage(1);
-  };
-
   const handleFilterChange = () => {
     setPage(1);
   };
 
+  const handleEmailClick = (email: Email) => {
+    setSelectedEmail(email);
+  };
+
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  if (selectedEmail) {
-    return (
-      <EmailView email={selectedEmail} onBack={() => setSelectedEmail(null)} />
-    );
-  }
-
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Mail className="h-6 w-6" />
-            Email Dashboard
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Search Bar */}
-          <SearchBar
-            query={query}
-            setQuery={setQuery}
-            onSearch={handleSearch}
-            placeholder="Search emails by subject, content, sender..."
-          />
+    <div className="h-screen flex flex-col">
+      {/* Compact Header with Search and Filters */}
+      <div className="p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center gap-4 mb-3">
+          <div className="flex items-center gap-2">
+            <Mail className="h-5 w-5" />
+            <h1 className="text-lg font-semibold">Email Dashboard</h1>
+          </div>
+          <div className="flex-1">
+            <SearchBar
+              query={query}
+              setQuery={setQuery}
+              placeholder="Search emails..."
+              debounceMs={500}
+            />
+          </div>
+        </div>
 
-          {/* Filter Panel */}
-          <FilterPanel
-            folders={folders}
-            accounts={accounts}
-            categories={categories}
-            selectedFolder={selectedFolder}
-            selectedAccount={selectedAccount}
-            selectedCategory={selectedCategory}
-            onFolderChange={(value) => {
-              setSelectedFolder(value);
-              handleFilterChange();
-            }}
-            onAccountChange={(value) => {
-              setSelectedAccount(value);
-              handleFilterChange();
-            }}
-            onCategoryChange={(value) => {
-              setSelectedCategory(value);
-              handleFilterChange();
-            }}
-          />
-        </CardContent>
-      </Card>
+        {/* Compact Filter Panel */}
+        <FilterPanel
+          folders={folders}
+          accounts={accounts}
+          categories={categories}
+          selectedFolder={selectedFolder}
+          selectedAccount={selectedAccount}
+          selectedCategory={selectedCategory}
+          onFolderChange={(value) => {
+            setSelectedFolder(value);
+            handleFilterChange();
+          }}
+          onAccountChange={(value) => {
+            setSelectedAccount(value);
+            handleFilterChange();
+          }}
+          onCategoryChange={(value) => {
+            setSelectedCategory(value);
+            handleFilterChange();
+          }}
+        />
+      </div>
 
-      {/* Results */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">
-            {loading ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading emails...
-              </div>
-            ) : (
-              `Results (${total} total emails)`
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <div className="text-red-600 p-4 bg-red-50 rounded-lg mb-4">
-              {error}
-            </div>
-          )}
-
-          {!loading && !error && emails.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              No emails found. Try adjusting your search criteria.
-            </div>
-          )}
-
-          {!loading && !error && emails.length > 0 && (
-            <>
-              <div className="grid gap-4">
-                {emails.map((email) => (
-                  <EmailCard
-                    key={email.uid}
-                    email={email}
-                    onClick={() => setSelectedEmail(email)}
-                  />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-between items-center mt-6 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                    disabled={page === 1}
-                    className="flex items-center gap-2"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-
-                  <span className="text-sm text-muted-foreground">
-                    Page {page} of {totalPages}
-                  </span>
-
-                  <Button
-                    variant="outline"
-                    onClick={() => setPage((p) => p + 1)}
-                    disabled={page >= totalPages}
-                    className="flex items-center gap-2"
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-6 px-4 lg:px-6 py-4 min-h-0">
+        {/* Left Panel - Email List */}
+        <div className="w-full lg:w-1/2 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading emails...
                 </div>
+              ) : (
+                `Emails (${total} total)`
               )}
-            </>
+            </h2>
+          </div>
+
+          <div className="flex-1 min-h-0">
+            <EmailList
+              emails={emails}
+              selectedEmail={selectedEmail}
+              onEmailClick={handleEmailClick}
+              loading={loading}
+              error={error}
+            />
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-between items-center mt-4 pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                disabled={page === 1}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+
+              <span className="text-sm text-muted-foreground">
+                Page {page} of {totalPages}
+              </span>
+
+              <Button
+                variant="outline"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={page >= totalPages}
+                className="flex items-center gap-2"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Right Panel - Email Preview */}
+        <div className="w-full lg:w-1/2 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Email Preview</h2>
+          </div>
+
+          <div className="flex-1 min-h-0">
+            <EmailPreview email={selectedEmail} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
