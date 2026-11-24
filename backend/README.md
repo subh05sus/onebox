@@ -317,4 +317,4 @@ This project is built for the ReachInbox Associate Backend Engineer assignment.
 
 ---
 
-**Developer**: [Subhadip Saha](https://subhadip.me) 
+**Developer**: [Subhadip Saha](https://thatdevguy.in) 

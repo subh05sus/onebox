@@ -167,7 +167,7 @@ This project is built for the ReachInbox Associate Backend Engineer assignment.
 ## 👨‍💻 Developer
 
 **Subhadip Saha**
-- **Portfolio**: [https://subhadip.me](https://subhadip.me)
+- **Portfolio**: [https://thatdevguy.in](https://thatdevguy.in)
 - **GitHub**: [@subh05sus](https://github.com/subh05sus)
 - **LinkedIn**: [Subhadip Saha](https://linkedin.com/in/subhadipsahaofficial)
 
